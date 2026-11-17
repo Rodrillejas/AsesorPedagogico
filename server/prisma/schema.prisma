@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubmissionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Project {
+  id          String                 @id @default(uuid())
+  name        String
+  description String?
+  semester    String?                @default("Semestre 2026-2")
+  term        String?                @default("Corte 1")
+  createdAt   DateTime               @default(now())
+  proposals   LabProposal[]
+  rubrics     Rubric[]
+  submissions EvaluationSubmission[]
+
+  @@map("projects")
+}
+
+model LabProposal {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  objectives  String?  @db.Text
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+
+  @@map("lab_proposals")
+}
+
+model Rubric {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("rubrics")
+}
+
+model EvaluationSubmission {
+  id              String            @id @default(uuid())
+  projectId       String
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  studentName     String
+  assignmentTitle String?
+  fileTree        Json
+  mediaSummary    Json?
+  status          SubmissionStatus  @default(PENDING)
+  createdAt       DateTime          @default(now())
+  result          EvaluationResult?
+
+  @@map("evaluation_submissions")
+}
+
+model EvaluationResult {
+  id                 String               @id @default(uuid())
+  submissionId       String               @unique
+  submission         EvaluationSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  overallScore       Float
+  maxScore           Float
+  summary            String               @db.Text
+  verificationNotes  String?              @db.Text
+  category           String?              @default("General")
+  subcategory        String?              @default("Desarrollo")
+  domainSkills       Json?
+  criteriaResults    Json
+  positiveAspects    Json
+  negativeAspects    Json
+  improvementPlan    Json
+  createdAt          DateTime             @default(now())
+
+  @@map("evaluation_results")
+}
+
+model ClosedInfographic {
+  id                 String   @id @default(uuid())
+  title              String
+  semester           String
+  term               String?  @default("TODOS")
+  totalEvaluations   Int
+  averageScore       Float
+  averagePercentage  Int
+  snapshotData       Json
+  createdAt          DateTime @default(now())
+
+  @@map("closed_infographics")
+}
+
+model AppConfig {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("app_configs")
+}

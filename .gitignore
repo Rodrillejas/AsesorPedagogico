@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+*/node_modules/
+package-lock.json.bak
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+*/dist/
+build/
+*/build/
+
+# Environment files and credentials
+.env
+*/.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Local Backups and deployment artifacts
+*.tar.gz
+*.zip
+local_backup.json
+deploy_*.py
+test_*.py
+check_*.py
+
+# System & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
